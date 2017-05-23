@@ -25,7 +25,26 @@ def extendValues():
     firstList.extend(secondList)
     return sorted(firstList)
 
+# 2. Get word frequency
+
+
+ss = """I figured it out
+I figured it out from black and white
+Seconds and hours
+Maybe they had to take some time"""
+
+
+def fromKeys():
+    """Get the sentence, split it into a list using spaces."""
+    words = ss.split()
+    # Initialize dictionary with word as key and count as zero
+    newDict = {}.fromkeys(words, 0)
+    for word in words:
+        newDict[word] += 1
+    return newDict
+
 
 if __name__ == '__main__':
     print popValues()
     print extendValues()
+    print fromKeys()
