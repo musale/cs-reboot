@@ -21,6 +21,7 @@ def binarySearch(dataSet, value):
             upperBound = midPoint - 1
 
         if dataSet[midPoint] == value:
+            found = True
             return "Found {} at index {}".format(value, midPoint)
 
 
