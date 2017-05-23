@@ -2,13 +2,13 @@
 
 # 1. We have two sorted lists, and we want to write a function to merge
 # the two lists into one sorted list
-a = [3, 4, 6, 10, 11, 18]
-b = [1, 5, 7, 12, 13, 19, 21]
 
 
 # 1a. We can pop the values into a new list and then merge with + operator
-def popValues(firstList, secondList):
+def popValues():
     """Get the firstList and secondList and then pop the values."""
+    firstList = [3, 4, 6, 10, 11, 18]
+    secondList = [1, 5, 7, 12, 13, 19, 21]
     newList = []
     while firstList and secondList:
         if firstList[0] < secondList[0]:
@@ -18,5 +18,14 @@ def popValues(firstList, secondList):
     return newList + firstList + secondList
 
 
+def extendValues():
+    """Using list.extend() function."""
+    firstList = [3, 4, 6, 10, 11, 18]
+    secondList = [1, 5, 7, 12, 13, 19, 21]
+    firstList.extend(secondList)
+    return sorted(firstList)
+
+
 if __name__ == '__main__':
-    print popValues(a, b)
+    print popValues()
+    print extendValues()
