@@ -1,4 +1,6 @@
 """Exercises that would require dictionary exercise."""
+from collections import defaultdict
+
 
 # 1. We have two sorted lists, and we want to write a function to merge
 # the two lists into one sorted list
@@ -44,7 +46,24 @@ def fromKeys():
     return newDict
 
 
+# 3.  make a dictionary with the number of digits as the key
+# and list of numbers the value
+
+
+justNumbers = [1, 2, 4, 8, 16, 32, 64, 128,
+               256, 512, 1024, 32768, 65536, 4294967296]
+
+
+def getNumberCounts():
+    """Get the number counts using using collections.defaultdict(int)."""
+    newDict = defaultdict(list)
+    for num in justNumbers:
+        newDict[len(str(num))].append(num)
+    return newDict
+
+
 if __name__ == '__main__':
     print popValues()
     print extendValues()
     print fromKeys()
+    print getNumberCounts()
