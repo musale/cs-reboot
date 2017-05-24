@@ -45,3 +45,45 @@ To keep things interesting, Commander Lambda varies the sizes of the Lucky LAMB
 payouts: you can expect total_lambs to always be between 10 and
 1 billion (10 ^ 9).
 """
+
+
+def answer(total_lambs):
+    """Get the difference between the mostStingy and mostGenerous."""
+    return mostStingy(total_lambs) - mostGenerous(total_lambs)
+
+
+def mostGenerous(total_lambs):
+    """Find how many henchmen you will pay when mostGenerous."""
+    if total_lambs < 1:
+        return 0
+    henchmanRank = 1
+    totalHenchmen = 0
+    while(total_lambs > 0):
+        total_lambs -= henchmanRank
+        henchmanRank *= 2
+        if(total_lambs >= 0):
+            totalHenchmen += 1
+    return totalHenchmen
+
+
+def mostStingy(total_lambs):
+    """Get the henchmen to pay when mostStingy."""
+    henchmanRank = [0, 1]
+    subOrdinates = 1
+    totalHenchmen = 0
+    while(total_lambs > 0):
+        totalRank = henchmanRank[0] + henchmanRank[1]
+        total_lambs -= totalRank
+
+        if(subOrdinates < 2):
+            subOrdinates += 1
+        else:
+            henchmanRank[0] = henchmanRank[1]
+            henchmanRank[1] = totalRank
+        if(total_lambs >= 0):
+            totalHenchmen += 1
+    return totalHenchmen
+
+
+if __name__ == '__main__':
+    print answer(15)
