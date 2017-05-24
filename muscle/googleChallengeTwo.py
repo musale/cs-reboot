@@ -85,5 +85,34 @@ def mostStingy(total_lambs):
     return totalHenchmen
 
 
+def answer2(total_lambs):
+    """
+    Using the golden ratio.
+
+    Golden ratio - special number found by dividing a line into two parts so
+    that the longer part divided by the smaller part is also equal to the whole
+    length divided by the longer part
+    """
+    from math import sqrt, log
+    phi = (1 + sqrt(5)) / 2
+    tau = (1 - sqrt(5)) / 2
+    eps = pow(10, -10)
+
+    maxHunchmen = int(round(log((total_lambs + 1) * sqrt(5) + eps, phi))) - 2
+    fibonacci = int(
+        round(
+            (pow(phi, maxHunchmen + 2) - pow(tau, maxHunchmen + 2)) // sqrt(5))
+        )
+    if total_lambs + 1 < fibonacci:
+        maxHunchmen -= 1
+    elif total_lambs + 1 == fibonacci:
+        total_lambs = fibonacci
+    if (total_lambs + 1) % 2 == 0:
+        minHunchmen = int(round(log((total_lambs + 1), 2)))
+    else:
+        minHunchmen = int(log((total_lambs + 1), 2))
+    return abs(maxHunchmen - minHunchmen)
+
+
 if __name__ == '__main__':
-    print answer(15)
+    print answer2(13)
