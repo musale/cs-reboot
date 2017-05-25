@@ -32,3 +32,23 @@ versions must be sorted ascending based on how many numbers they have,
 e.g ["1", "1.0", "1.0.0"].The number of elements in the list l will be at
 least 1 and will not exceed 100.
 """
+
+
+def answer(l):
+    """Take a list l and sort it in ascending order using insertion sort."""
+    for i in range(1, len(l)):
+        j = i - 1
+        while versiontuple(l[j]) > versiontuple(l[j + 1]) and j >= 0:
+            l[j], l[j + 1] = l[j + 1], l[j]
+            j -= 1
+    return l
+
+
+def versiontuple(versionString):
+    """Convert the version string into a tuple."""
+    return tuple(map(int, (versionString.split("."))))
+
+
+if __name__ == '__main__':
+    print answer(
+        ["1.1.2", "1.0", "1.3.3", "1.0.12", "1.0.2", "1.0.0", "0.9.1"])
