@@ -26,3 +26,31 @@ pellets to 1. The fuel intake control panel can only display a number up to
 309 digits long, so there won't ever be more pellets than you can express in
 that many digits.
 """
+
+
+def answer(n):
+    """
+    Return minimum ops to convert n into 1.
+
+    Using the binary representation of n and the Least Significant Bits,
+    I determine if a number is odd or even.
+    - if the least significant bit is zero, then divide by 2
+    - if n is 3, or the 2 least significant bits are 01, then subtract
+    - the other cases I add.
+    """
+    pellets = int(n)
+    operations = 0
+    while pellets > 1:
+        if pellets % 2 == 0:
+            pellets = pellets // 2
+        elif pellets == 3 or pellets % 4 == 1:
+            pellets = pellets - 1
+        else:
+            pellets = pellets + 1
+        operations += 1
+    return operations
+
+
+if __name__ == '__main__':
+    print answer("4")
+    print answer("15")
