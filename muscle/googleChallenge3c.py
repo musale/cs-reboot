@@ -51,3 +51,16 @@ the form of
 [s2.numerator, s3.numerator, s4.numerator, s5.numerator, denominator] which is
 [0, 3, 2, 9, 14].
 """
+
+
+def answer(m):
+    """Take matrix m."""
+    return m
+
+
+if __name__ == '__main__':
+    print answer(
+        [
+            [0, 2, 1, 0, 0], [0, 0, 0, 3, 4], [0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0], [0, 0, 0, 0, 0]
+        ])
