@@ -37,6 +37,7 @@ def answer(n):
     - if the least significant bit is zero, then divide by 2
     - if n is 3, or the 2 least significant bits are 01, then subtract
     - the other cases I add.
+    https://stackoverflow.com/a/39589499/4444629
     """
     pellets = int(n)
     operations = 0
