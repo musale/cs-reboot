@@ -25,3 +25,33 @@ The length of l is between 2 and 2000 inclusive.  The elements of l are between
 of the lists are purposely generated without any access codes to throw off
 spies, so if no triples are found, return 0.
 """
+
+
+def answer(l):
+    """
+    Return count of lucky triples.
+
+    - Maintain a tempValues[i] for each item on the list representing the
+    number of previous integers that divide l[i]
+    - Loop through the list and test each integer l[j] with all previous
+    item l[i], if l[j] divides l[i], you just add tempValues[i]
+    to the luckyTriples.
+
+    There exist exactly tempValues[j] items of l[i] such that
+    l[i] divides l[j] and i < j
+    """
+    luckyTriples = 0
+    tempValues = [0] * len(l)
+    if len(l) >= 2 and len(l) <= 2000:
+        for i in xrange(0, len(l)):
+            j = 0
+            for j in xrange(0, i):
+                if l[i] % l[j] == 0:
+                    tempValues[i] = tempValues[i] + 1
+                    luckyTriples = luckyTriples + tempValues[j]
+    return luckyTriples
+
+
+if __name__ == '__main__':
+    print answer([1, 2, 3, 4, 5, 6])
+    print answer([1, 1, 1])
