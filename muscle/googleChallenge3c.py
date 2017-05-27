@@ -54,13 +54,92 @@ the form of
 
 
 def answer(m):
-    """Take matrix m."""
+    """
+    Using Markov Absorbing chains.
+
+    - Order matrix so that rows start with terminal states.
+    - Find R and Q
+    - Calculate FR = (I-Q)^-1
+    """
     return m
 
 
+def orderMatrixStartingWithTerminal(matrix):
+    """Order matrix starting with terminal states. Insertion sorted."""
+    for i in range(0, len(matrix) - 1):
+        minIndex = i
+        for j in range(i + 1, len(matrix)):
+            if sum(matrix[j]) < sum(matrix[minIndex]):
+                minIndex = j
+            if minIndex != i:
+                matrix[i], matrix[minIndex] = matrix[minIndex], matrix[i]
+    # 1. findR and findQ
+    matrixR = findR(matrix)
+    matrixQ = findQ(matrix)
+    matrixI = generateIdentity(len(matrixQ[0]))
+    matrixA = subtractMatrices(matrixI, matrixQ)
+    return matrixA
+
+
+def findQ(matrix):
+    """The sub matrix from the ordered matrix."""
+    matrixLength = len(matrix)
+    filteredMatrix = filter(lambda m: sum(m) != 0, matrix)
+    filteredMatrixLength = len(filteredMatrix)
+
+    nonTerminal = matrixLength - filteredMatrixLength
+    matrixQ = []
+    for value in filteredMatrix:
+        q, total = [], float(sum(value))
+        for i in range(nonTerminal - 1):
+            q.extend([float(value[i])/total])
+        matrixQ.append(q)
+    return matrixQ
+
+
+def findR(matrix):
+    """The sub matrix from the ordered matrix."""
+    matrixLength = len(matrix)
+    filteredMatrix = filter(lambda m: sum(m) != 0, matrix)
+    filteredMatrixLength = len(filteredMatrix)
+    nonTerminal = matrixLength - filteredMatrixLength
+    matrixR = []
+    for value in filteredMatrix:
+        r, total = [], sum(value)
+        for i in range(1, nonTerminal + 1):
+            r.extend([float(value[-i])/total])
+        matrixR.append(list(reversed(r)))
+    return matrixR
+
+
+def generateIdentity(size):
+    """Generate an identity matrix based on the size supplied."""
+    identity = []
+    tracker = 0
+    for i in range(size):
+        row = [0] * size
+        if i == tracker:
+            row[i] = 1
+            tracker += 1
+        identity.append(row)
+    return identity
+
+
+def subtractMatrices(matrixA, matrixB):
+    """Subtract 2 square matrices."""
+    return map(lambda i: map(lambda x, y: x - y, matrixA[i], matrixB[i]),
+               xrange(len(matrixA)))
+
+
+def findFR(I, Q):
+    """To find FR=(I-Q)^-1. Find inverse of Identinty - matrixQ."""
+    return I, Q
+
+
 if __name__ == '__main__':
-    print answer(
+    ordered = orderMatrixStartingWithTerminal(
         [
             [0, 2, 1, 0, 0], [0, 0, 0, 3, 4], [0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0], [0, 0, 0, 0, 0]
         ])
+    print ordered
