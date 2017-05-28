@@ -54,8 +54,6 @@ the form of
 from __future__ import division
 
 import fractions
-from itertools import compress, starmap
-from operator import mul
 
 
 def answer(m):
@@ -64,39 +62,214 @@ def answer(m):
 
     - Order matrix so that rows start with terminal states.
     - Find R and Q
-    - Calculate F = (I-Q)^-1
-    - Multiply F by R
+    - Calculate FR = (I-Q)^-1.
     """
-    transMatrix = getTransMatrix(m)
-    return transMatrix
+    if m == [[0]]:
+        probabilities = [1, 1]
+    else:
+        matrix = arrangeMatrix(m)
+        matrixQ = findQ(matrix)
+        matrixR = findR(matrix)
+        matrixI = generateIdentity(len(matrixQ[0]))
+        matrixA = subtractMatrices(matrixI, matrixQ)
+        matrixF = getMatrixInverse(matrixA)
+        matrixFR = multiplyMatricest(matrixF, matrixR)
+        probabilities = getProbabilities(matrixFR[0])
+    return probabilities
 
 
-def getTransMatrix(matrix):
-    """Get the transition matrix."""
-    transMatrix = []
-    for i in range(len(matrix)):
-        row = matrix[i]
+def findQ(matrix):
+    """The sub matrix from the ordered matrix."""
+    matrixLength = len(matrix)
+    filteredMatrix = filter(lambda m: sum(m) != 0, matrix)
+    filteredMatrixLength = len(filteredMatrix)
+    nonTerminalLength = matrixLength - filteredMatrixLength
+    matrixQ = []
+    for value in filteredMatrix:
+        matrixQ.append(value[nonTerminalLength:])
+    return matrixQ
+
+
+def findR(matrix):
+    """The sub matrix from the ordered matrix."""
+    matrixLength = len(matrix)
+    filteredMatrix = filter(lambda m: sum(m) != 0, matrix)
+    filteredMatrixLength = len(filteredMatrix)
+    nonTerminalLength = matrixLength - filteredMatrixLength
+    matrixR = []
+    for value in filteredMatrix:
+        matrixR.append(value[:nonTerminalLength])
+    return matrixR
+
+
+def generateIdentity(size):
+    """Generate an identity matrix based on the size supplied."""
+    identity = []
+    tracker = 0
+    for i in range(size):
+        row = [0] * size
+        if i == tracker:
+            row[i] = 1
+            tracker += 1
+        identity.append(row)
+    return identity
+
+
+def subtractMatrices(matrixA, matrixB):
+    """Subtract 2 square matrices."""
+    return map(lambda i: map(lambda x, y: x - y, matrixA[i], matrixB[i]),
+               xrange(len(matrixA)))
+
+
+def multiplyMatricest(m1, m2):
+    """Multiply matrices."""
+    r, m = [], []
+    for i in range(len(m1)):
+        for j in range(len(m2[0])):
+            sums = 0
+            for k in range(len(m2)):
+                sums = sums + (m1[i][k] * m2[k][j])
+            r.append(sums)
+        m.append(r)
+        r = []
+    return m
+
+
+def findFR(I, Q):
+    """To find FR=(I-Q)^-1. Find inverse of Identinty - matrixQ."""
+    return I, Q
+
+
+def transposeMatrix(m):
+    """Transpose matrix."""
+    t = []
+    for r in range(len(m)):
+        tRow = []
+        for c in range(len(m[r])):
+            if c == r:
+                tRow.append(m[r][c])
+            else:
+                tRow.append(m[c][r])
+        t.append(tRow)
+    return t
+
+
+def getMatrixMinor(m, i, j):
+    """Get matrix minor."""
+    return [row[:j] + row[j + 1:] for row in (m[:i] + m[i + 1:])]
+
+
+def getMatrixDeternminant(m):
+    """Get a matrix determinant."""
+    # base case for 2x2 matrix
+    if len(m) == 2:
+        return m[0][0] * m[1][1] - m[0][1] * m[1][0]
+
+    determinant = 0
+    for c in range(len(m)):
+        determinant += ((-1)**c) * m[0][c] * \
+            getMatrixDeternminant(getMatrixMinor(m, 0, c))
+    return determinant
+
+
+def getMatrixInverse(m):
+    """Get a matrix inverse."""
+    determinant = getMatrixDeternminant(m)
+    # special case for 2x2 matrix:
+    if len(m) == 2:
+        return [[m[1][1] / determinant, -1 * m[0][1] / determinant],
+                [-1 * m[1][0] / determinant, m[0][0] / determinant]]
+
+    # find matrix of cofactors
+    cofactors = []
+    for r in range(len(m)):
+        cofactorRow = []
+        for c in range(len(m)):
+            minor = getMatrixMinor(m, r, c)
+            cofactorRow.append(((-1)**(r + c)) * getMatrixDeternminant(minor))
+        cofactors.append(cofactorRow)
+    cofactors = transposeMatrix(cofactors)
+    for r in range(len(cofactors)):
+        for c in range(len(cofactors)):
+            cofactors[r][c] = cofactors[r][c] / determinant
+    return cofactors
+
+
+def getProbabilities(aList):
+    """Get the numerators from the top value of the FR matrix."""
+    probabilityList = []
+    denominators = []
+    for value in aList:
+        denominators.append(
+            fractions.Fraction(value).limit_denominator().denominator)
+    lcm = leastCommonMultiple(*denominators)
+    for value in aList:
+        denominator = fractions.Fraction(value).limit_denominator().denominator
+        numerator = fractions.Fraction(value).limit_denominator().numerator
+        probabilityList.append(int((numerator * lcm) / denominator))
+    probabilityList.append(lcm)
+    return probabilityList
+
+
+def leastCommonMultiple(*numbers):
+    """Return lowest common multiple."""
+    def lcm(a, b):
+        return (a * b) // fractions.gcd(a, b)
+    return reduce(lcm, numbers, 1)
+
+
+def arrangeMatrix(matrix):
+    """Arrange matrix."""
+    matrixWithTerminalFirst = []
+    terminalIndexes = []
+    nonTerminalIndexes = []
+    for key, column in enumerate(matrix):
         newRow = []
-        rowSum = sum(row)
-        if all([v == 0 for v in row]):
-            for j in row:
+        if all([v == 0 for v in column]):
+            # add the state to terminal indexes
+            terminalIndexes.append(key)
+            for j in column:
                 newRow.append(0)
-            newRow[i] = 1
-            transMatrix.append(newRow)
+            # newRow[key] = 1
+            matrixWithTerminalFirst.append(newRow)
         else:
-            for j in row:
-                newRow.append(j / rowSum)
-            transMatrix.append(newRow)
-    return transMatrix
+            # add to nonTerminalIndexes
+            nonTerminalIndexes.append(key)
+    terminalIndexes.extend(nonTerminalIndexes)
+    filteredMatrix = filter(lambda m: sum(m) != 0, matrix)
+    for value in filteredMatrix:
+        newRow = []
+        rowSum = sum(value)
+        for _, index in enumerate(terminalIndexes):
+            newRow.append(value[index] / rowSum)
+        matrixWithTerminalFirst.append(newRow)
+
+    return matrixWithTerminalFirst
 
 
 if __name__ == '__main__':
-    m = [
-        [0, 1, 0, 0, 0, 1],
-        [4, 0, 0, 3, 2, 0],
-        [0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0],
-    ]
-    print answer(m)
+    # TEST 1
+    m1 = [
+            [0, 2, 1, 0, 0],
+            [0, 0, 0, 3, 4],
+            [0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0]
+        ]
+    a1 = [7, 6, 8, 21]
+
+    # TEST 2
+    m2 = [
+            [0, 1, 0, 0, 0, 1],
+            [4, 0, 0, 3, 2, 0],
+            [0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0]
+        ]
+    a2 = [0, 3, 2, 9, 14]
+
+    ordered1 = answer(m1)
+    ordered2 = answer(m2)
+    print ordered1,  a1
+    print ordered2,  a2
